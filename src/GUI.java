@@ -6,6 +6,8 @@ import java.awt.event.ActionListener;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Classe responsável pela criação da 'interface' gráfica
@@ -72,11 +74,6 @@ class GUI extends JFrame {
     protected String[] answers;
 
     /**
-     * Mostra ao utilizador se acertou ou errou
-     */
-    protected JLabel showInfo = new JLabel();
-
-    /**
      * Resposta correta
      */
     protected String ansCorrect;
@@ -85,6 +82,17 @@ class GUI extends JFrame {
      * Resposta do utilizador
      */
     protected String ansUser;
+
+    /**
+     * Label que irá apresentar o resultado de jogo
+     */
+    protected JLabel showInfo;
+
+    /**
+     * Cada pergunta tem uma pontuação base, definida no ficheiro de texto
+     * (para posterior majoração, conforme a área)
+     */
+    protected int baseScore;
 
     /**
      * Contador
@@ -117,6 +125,16 @@ class GUI extends JFrame {
     protected ArrayList<String> wrong = new ArrayList<>();
 
     /**
+     * Ativação ou desativação dos botões de resposta
+     */
+    protected boolean buttonsEnabled = true;
+
+    /**
+     * Classe gestora de resultados, para armazenar e ler jogos
+     */
+    protected Resultados res;
+
+    /**
      * Construtor
      */
     GUI(ArrayList<String> allQuestions) {
@@ -132,9 +150,6 @@ class GUI extends JFrame {
         createFinalPanel();
         cardPanel.add(finalPanel, "END");       // Painel final
 
-        createTopPanel();
-        cardPanel.add(topPanel, "TOP 3");       // Painel de "TOP 3"
-
         cardLayout.show(cardPanel, "Welcome");      // Mostra o painel de boas vindas
 
         setSize(800, 600);
@@ -143,7 +158,7 @@ class GUI extends JFrame {
         setVisible(true);
 
         add(cardPanel);     // Adiciona o painel de cartões ao JFrame
-        showInfo = createStyledLabel("", 14, Font.PLAIN, Color.decode("#cda142"));
+        this.showInfo = createStyledLabel("", 14, Font.PLAIN, Color.decode("#cda142"));
     }
 
     /**
@@ -171,7 +186,9 @@ class GUI extends JFrame {
         JButton button = new JButton(answer);
         setButton(button, false);
         button.setPreferredSize(new Dimension(w, h));
-        button.addActionListener(listener);
+        button.addActionListener(e -> {
+            if (buttonsEnabled) { listener.actionPerformed(e); }
+        });
         return button;
     }
 
@@ -213,6 +230,7 @@ class GUI extends JFrame {
     private void defineInfo(int index) {
         this.area = chosenQuestions.get(index).getArea();      // Área
         this.phrase = chosenQuestions.get(index).getPhrase();  // Enunciado
+        this.baseScore = chosenQuestions.get(index).getPont(); // Pontuação base
 
         if (!this.area.equals("Natação") && !this.area.equals("Ski")) {
             this.buttonsNr = 5;
@@ -247,12 +265,9 @@ class GUI extends JFrame {
         choice = new Escolha();
         this.chosenQuestions = choice.chooseQuestions(allQuestions);
 
-        // Cria todos os painéis principais antecipadamente
-        for (int i = 1; i <= chosenQuestions.size(); i++) {
-            defineInfo(i - 1);
-            createMainPanel(i);
-            cardPanel.add(mainPanel, "Main" + i);
-        }
+        defineInfo(0);
+        createMainPanel(1);
+        cardPanel.add(mainPanel, "Main" + 1);
         cardLayout.show(cardPanel, "Main" + 1);
     }
 
@@ -290,9 +305,10 @@ class GUI extends JFrame {
         // Array com os botões de resposta
         JButton[] answerButtons = new JButton[buttonsNr];
 
+        // Cria e adiciona os botões ao painel
         for (int i = 0; i < buttonsNr; i++) {    // Cria 5 ou 2 botões
-            answerButtons[i] = createStyledButton(answers[i], 150, 40, e -> onAnswerButtonClicked(((JButton) e.getSource()).getText()));
             int finalI = i;
+            answerButtons[i] = createStyledButton(answers[i], 150, 40, e -> handleAnswer(answers[finalI]));
             answerButtons[i].addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseEntered(MouseEvent evt) { setButton(answerButtons[finalI], true); }
@@ -303,7 +319,9 @@ class GUI extends JFrame {
             });
             mainPanel.add(answerButtons[i]);
         }
-        mainPanel.add(this.showInfo);
+
+        // Inicializa a label que apresenta ao utilizador o resultado obtido em cada questão
+        mainPanel.add(showInfo);
     }
 
     /**
@@ -351,12 +369,14 @@ class GUI extends JFrame {
         topPanel.add(Box.createRigidArea(new Dimension(0,50)));
 
         // Informações dos 3 melhores jogos (exemplo a ser alterado)
-        String[][] playerInfo = {{"Jogador 1", "100", "01/01/2023 10:00"},
+        Top top = new Top();
+
+        String[][] playerInfo = {{"Jogador 1", "100", "01/12/2023"},
                 {"Jogador 2", "90", "02/01/2023 11:00"},
                 {"Jogador 3", "80", "03/01/2023 12:00"}};
 
         for (String[] player : playerInfo) {
-            JLabel nameLabel = createStyledLabel("Nome: " + player[0], 14, Font.PLAIN, Color.WHITE);
+            JLabel nameLabel = createStyledLabel(player[0], 14, Font.PLAIN, Color.WHITE);
             JLabel scoreLabel = createStyledLabel("Pontuação: " + player[1], 14, Font.PLAIN, Color.WHITE);
             JLabel dateLabel = createStyledLabel("Data e hora: " + player[2], 14, Font.PLAIN, Color.WHITE);
             topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
@@ -367,37 +387,58 @@ class GUI extends JFrame {
             topPanel.add(dateLabel);
             topPanel.add(Box.createRigidArea(new Dimension(0,20)));
         }
+        topPanel.add(Box.createRigidArea(new Dimension(0,10)));
+        JLabel gameScore = createStyledLabel("Pontuação do jogo atual: " + 0, 14, Font.BOLD, Color.WHITE);
+        topPanel.add(gameScore);
 
         topPanel.add(Box.createRigidArea(new Dimension(0,50)));
-
         JButton newGameButton = createStyledButton("NOVO JOGO", 150, 40, e -> startGame());
         topPanel.add(newGameButton);
     }
 
     /**
-     * Ações a efetuar quando uma das opções de resposta é pressionada
+     * Lida com a resposta do utilizador
      */
-    private void onAnswerButtonClicked(String answer) {
+    private void handleAnswer(String selectedAnswer) {
+        buttonsEnabled = false;
+
         // Verificação de respostas
-        ansUser = answer.substring(0, 2);
+        ansUser = selectedAnswer.substring(0, 2);
         ansCorrect = chosenQuestions.get(temp).getAns();
         String questionToAdd = chosenQuestions.get(temp).getPhrase();
-        if (ansUser.equals(ansCorrect)) { right.add(questionToAdd); }
-        else { wrong.add(questionToAdd); }
-
-        // Apresentação do resultado
-        showInfo.setText("Resposta correta!");
+        if (ansUser.equals(ansCorrect)) {
+            showInfo.setText("Resposta correta!");
+            right.add(questionToAdd);
+        } else {
+            showInfo.setText("Resposta incorreta. A resposta correta era: " + ansCorrect);
+            wrong.add(questionToAdd);
+        }
 
         // Próximo painel
         temp++;
-        questionNr++;
 
-        // Atualiza o conteúdo do painel principal atual
-        if (temp < chosenQuestions.size()) {
-            cardLayout.show(cardPanel, "Main" + (temp + 1));
-        } else {
-            cardLayout.show(cardPanel, "END");
-        }
+        // Exibe a mensagem por um segundo, antes de passar para a próxima pergunta
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                SwingUtilities.invokeLater(() -> {
+                    showInfo.setText(""); // Reseta o texto da label
+                    if (questionNr <= 5) {
+                        defineInfo(temp);
+                        createMainPanel(temp + 1);
+                        cardPanel.add(mainPanel, "Main" + (temp + 1));
+                        cardLayout.show(cardPanel, "Main" + (temp + 1));
+                        questionNr++;
+                    } else {
+                        // Se todas as perguntas foram respondidas, exibe o ecrã de fim de jogo
+                        cardLayout.show(cardPanel, "END");
+                    }
+                    buttonsEnabled = true;
+                    timer.cancel(); // Cancela o temporizador após a execução
+                });
+            }
+        }, 1000); // Aguarda 1 segundo antes de executar a tarefa
     }
 
     /**
@@ -405,16 +446,31 @@ class GUI extends JFrame {
      * @param playerName Nome do jogador
      */
     private void onOkButtonClicked(String playerName) {
+        // O nome só deve contar letras e espaços
+        String regex = "^[a-zA-Z\\s]*$";
+
+        // Remoção de espaços desnecessários
+        if(playerName.trim().isEmpty() || !playerName.matches(regex)) {
+            JOptionPane.showMessageDialog(null,
+                    "Nome inválido! Apenas letras são aceites e o nome não pode estar vazio.",
+                    "Invalid Parameter",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         // Obtenção de data e hora de sistema
         LocalDateTime dateTimeNow = LocalDateTime.now();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         String dateTimeFormat = dateTimeNow.format(format);
 
         // Escrita do ficheiro com os resultados de cada jogo, com data, hora e nome
-        Resultados res = new  Resultados(dateTimeFormat, playerName);
-        res.generateResultsFile(dateTimeFormat, playerName, right, wrong);
+        res = new  Resultados(dateTimeFormat, playerName);
+        res.generateResultFile(dateTimeFormat, playerName, right, wrong);
 
         // Exibe o "TOP 3", após o botão "OK" ser clicado
+        System.out.println(baseScore);
+        createTopPanel();
+        cardPanel.add(topPanel, "TOP 3");
         cardLayout.show(cardPanel, "TOP 3");
     }
 }

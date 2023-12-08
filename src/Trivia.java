@@ -1,5 +1,4 @@
 import java.io.*;
-import java.net.URL;
 import java.util.ArrayList;
 import javax.swing.*;
 
@@ -18,26 +17,20 @@ public class Trivia {
      * @param args Unused
      */
     public static void main(String[] args) {
-        URL url = Trivia.class.getClassLoader().getResource("pootrivia.txt");
         Ficheiros files = new Ficheiros();
-
         ArrayList<String> allQuestions;         // Todas as perguntas
 
         // Leitura do ficheiro com as informações de perguntas
-        if (url != null) {
-            File fr = new File(url.getPath());
-            try {
-                allQuestions = files.openRead(fr);
-                files.closeRead();
+        File fr = new File("pootrivia.txt");
+        try {
+            allQuestions = files.openRead(fr);
+            SwingUtilities.invokeLater(() -> {
+                GUI gui = new GUI(allQuestions);
+                gui.setVisible(true);
+            });
 
-                SwingUtilities.invokeLater(() -> {
-                    GUI gui = new GUI(allQuestions);
-                    gui.setVisible(true);
-                });
-
-            } catch(Exception ex1){
-                // ex1.printStackTrace();
-            }
+        } catch(Exception ex1){
+            // ex1.printStackTrace();
         }
     }
 }

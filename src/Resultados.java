@@ -1,6 +1,8 @@
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.nio.file.*;
 
 class Resultados implements Serializable {
     /**
@@ -26,7 +28,12 @@ class Resultados implements Serializable {
     /**
      * Utilizado para efeitos de leitura e escrita de ficheiros
      */
-    protected Ficheiros files;
+    protected Ficheiros files = new Ficheiros();
+
+    /**
+     * Ficheiro
+     */
+    protected File fr;
 
     /**
      * Pontuação de jogo
@@ -41,6 +48,25 @@ class Resultados implements Serializable {
     Resultados(String dateTime, String playerName) {
         this.dateTime = dateTime;
         this.playerName = playerName;
+        joinDate();
+        setInitials();
+
+        String folder = "Games";
+        String fileName = "pootrivia_jogo_" + this.joinedDate + "_" + this.initials.toUpperCase() + ".dat";
+
+        // Obtém o caminho relativo ao diretório de trabalho atual
+        Path relativePath = Paths.get(folder);
+
+        // Se a pasta games ainda não foi criada, cria uma para armazenar os dados de jogo
+        if  (!Files.exists(relativePath)) {
+            try {
+                Files.createDirectories(relativePath);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        fr = new File(folder + "/" + fileName);
     }
 
     /**
@@ -67,32 +93,24 @@ class Resultados implements Serializable {
     /**
      * Criação e escrita de um ficheiro objeto com os resultados
      */
-    protected File generateResultsFile(String dateAndTime, String playerName, ArrayList<String> right, ArrayList<String> wrong) {
-        files = new Ficheiros();
-        joinDate();
-        setInitials();
-
-        File fr = new File("pootrivia_jogo_" + this.joinedDate + "_" + this.initials.toUpperCase() + ".dat");
+    protected void generateResultFile(String dateAndTime, String playerName, ArrayList<String> right, ArrayList<String> wrong) {
         try {
-            files.openWrite(fr, dateAndTime, playerName, right, wrong);
-            files.closeWrite();
+            files.openWriteGame(fr, dateAndTime, playerName, right, wrong);
+            files.closeWriteGame();
         } catch(Exception ex1){
             // ex1.printStackTrace();
         }
-        return fr;
     }
 
     /**
      * Leitura de um ficheiro objeto com os resultados
      */
-    private void readResultsFile() {
-
+    protected void readResultFile() {
+        if (fr != null) { files.openReadGame(fr); }
     }
 
     /**
      * Calcula a pontuação de jogo, através da lista de perguntas acertadas
      */
-    private void gameScore() {
-
-    }
+    private void gameScore() {}
 }
