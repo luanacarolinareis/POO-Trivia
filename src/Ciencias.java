@@ -13,13 +13,18 @@ class Ciencias extends Pergunta {
     protected String[] hardAnswers = new String[5];
 
     /**
+     * Construtor default
+     */
+    Ciencias() {}
+
+    /**
      * Construtor
      * @param splitted Informação dividida
      */
     Ciencias(String[] splitted) {
         super(splitted);
-        System.arraycopy(splitted, 3, this.easyAsnwers, 0, 5);
-        System.arraycopy(splitted, 8, this.hardAnswers, 0, 5);
+        System.arraycopy(splitted, 2, this.easyAsnwers, 0, 5);
+        System.arraycopy(splitted, 7, this.hardAnswers, 0, 5);
     }
 
     /**
@@ -38,5 +43,5 @@ class Ciencias extends Pergunta {
      * Majoração da pontuação
      * @return Pontuação majorada em +5 pela área de "Ciências"
      */
-    public int getPont() { return super.getPont() + 5; }
+    public int getScore() { return super.getScore() + 5; }
 }

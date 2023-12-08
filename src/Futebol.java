@@ -13,13 +13,18 @@ class Futebol extends Desporto {
     protected String[] shirtAnswers = new String[5];
 
     /**
+     * Construtor default
+     */
+    Futebol() {}
+
+    /**
      * Construtor
      * @param splitted Informação dividida
      */
     Futebol(String[] splitted) {
         super(splitted);
-        System.arraycopy(splitted, 3, this.nameAnswers, 0, 5);
-        System.arraycopy(splitted, 8, this.shirtAnswers, 0, 5);
+        System.arraycopy(splitted, 2, this.nameAnswers, 0, 5);
+        System.arraycopy(splitted, 7, this.shirtAnswers, 0, 5);
     }
 
     /**
@@ -38,5 +43,5 @@ class Futebol extends Desporto {
      * Majoração da pontuação
      * @return Pontuação majorada em +3 pela área de "Desporto" e majorada em +1 pela subárea de "Futebol"
      */
-    public int getPont() { return super.getPont() + 1; }
+    public int getScore() { return super.getScore() + 1; }
 }

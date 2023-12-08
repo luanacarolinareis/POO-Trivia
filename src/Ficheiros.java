@@ -33,12 +33,13 @@ class Ficheiros {
     /**
      * Abrir o ficheiro para leitura de perguntas
      */
-    public ArrayList<String> openRead(File file) throws IOException {
+    protected ArrayList<String> openRead(File file) throws IOException {
         FileReader fR = new FileReader(file);
         bR = new BufferedReader(fR);
         while((line = bR.readLine()) != null) {  // Leitura, enquanto houver conteúdo para ler
             allQuestions.add(line);
         }
+        closeRead();
         return allQuestions;
     }
 
@@ -46,52 +47,55 @@ class Ficheiros {
      * Fechar o ficheiro para leitura de perguntas
      * @throws IOException Exceções
      */
-    public void closeRead() throws IOException { bR.close(); }
+    protected void closeRead() throws IOException { bR.close(); }
 
     /**
      * Abrir o ficheiro para escrita de resultados
      */
-    public void openWriteGame(File file, String dateAndTime, String playerName, ArrayList<String> right, ArrayList<String> wrong) throws IOException {
+    protected void openWriteGame(File file, String dateAndTime, String playerName, ArrayList<Pergunta> right, ArrayList<Pergunta> wrong) throws IOException {
         FileOutputStream foS = new FileOutputStream(file);
         ooS = new ObjectOutputStream(foS);
         ooS.writeObject("Data e hora: " + dateAndTime);
         ooS.writeObject("Nome do jogador: " + playerName);
         ooS.writeObject("Perguntas certas: ");
-        for (String r: right) { ooS.writeObject(r); }
+        for (Pergunta r: right) { ooS.writeObject(r.getArea() + ";"+ r.getPhrase()); }
         ooS.writeObject("Perguntas erradas: ");
-        for (String w: wrong) { ooS.writeObject(w); }
+        for (Pergunta w: wrong) { ooS.writeObject(w.getPhrase()); }
+        closeWriteGame();
     }
 
     /**
      * Fechar o ficheiro para escrita de resultados
      * @throws IOException Exceções
      */
-    public void closeWriteGame() throws IOException { ooS.close(); }
+    protected void closeWriteGame() throws IOException { ooS.close(); }
 
     /**
      * Abrir o ficheiro para leitura de um jogo
      */
-    public ArrayList<String> openReadGame(File file) {
-        ArrayList<String> infoGame = new ArrayList<>();
+    protected ArrayList<String> openReadGame(File file) {
+        ArrayList<String> rightQuestions = new ArrayList<>();
+
         try {
             FileInputStream fiS = new FileInputStream(file);
             oiS = new ObjectInputStream(fiS);
 
             // Leitura dos objetos do arquivo
-            while ((line = oiS.readObject().toString()) != null) {
-                infoGame.add(line);
-                System.out.println(line);
+            while (!(line = oiS.readObject().toString()).equals("Perguntas erradas: ")) {
+                if (!(line.contains("Data") || line.contains("Nome") || line.contains("Perguntas"))) {
+                    rightQuestions.add(line);
+                }
             }
             closeReadGame();
         } catch (Exception ex) {
             // ex.printStackTrace();
         }
-        return infoGame;
+        return rightQuestions;
     }
 
     /**
      * Fechar o ficheiro para leitura de um jogo
      * @throws IOException Exceções
      */
-    public void closeReadGame() throws IOException { oiS.close(); }
+    protected void closeReadGame() throws IOException { oiS.close(); }
 }

@@ -1,77 +1,77 @@
 import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
 
 /**
  * Ordena as pontuações de jogos
  */
-class Top {
+class Top extends Ficheiros {
+    /**
+     * Todas as perguntas corretas, referentes a um jogo
+     */
+    private ArrayList<String> rightQuestions;
 
     /**
-     * Lista temporária para armazenar informações dos jogos
+     * Pontuação total de um jogo
      */
-    List<File> gameFiles = new ArrayList<>();
+    private int gameScore;
+
+    /**
+     * Utilizado para efeitos de leitura e escrita de ficheiros
+     */
+    private final Ficheiros files = new Ficheiros();
+
+    /**
+     * Array de ficheiros
+     */
+    protected File[] gameFiles;
+
+    protected Pergunta p;
+
+    /**
+     * Vai devolver os três melhores jogos
+     */
+    public void getTopScores() {
+       saveAllToMemory();   // Primeiramente, guarda todos os jogos numa lista temporária
+       for (File fr: gameFiles) {                    // Para cada um desses ficheiros, vai processar a sua informação
+           gameScore = extractGameScore(fr);         // Processa o jogo atual
+           System.out.println(gameScore);
+           System.out.println("\nNew game...\n");
+       }
+   }
 
     /**
      * Função responsável por guardar todos os ficheiros objeto existentes para uma lista temporária
      */
-    public void saveAllToMemory() {
+    private void saveAllToMemory() {
         // Diretório onde estão os arquivos
-        String directory = "/caminho/do/diretorio";
+        String folder = "Games";
+        File fr = new File(folder);
 
-        // Obter lista de arquivos no diretório
-        File folder = new File(directory);
-        File[] files = folder.listFiles((dir, name) -> name.endsWith(".txt"));
-
-        if (files != null) {
-            Collections.addAll(gameFiles, files);
-
-            // Ordenar a lista temporária por pontuação em ordem decrescente
-            // gameFiles.sort(Comparator.comparingInt(Top::extractScore).reversed());
-
-            // Imprimir a lista ordenada
-            for (File jogo : gameFiles) {
-                processarJogo(jogo);
-            }
-        }
-    }
-
-    public void processarJogo(File jogo) {
-        try {
-            // Ler o conteúdo do arquivo
-            Scanner scanner = new Scanner(jogo);
-            String content = scanner.useDelimiter("\\Z").next();
-            scanner.close();
-
-            // Extrair informações do arquivo
-            String[] lines = content.split("\n");
-            String dataHoraStr = lines[1].split(": ")[1];
-            Date dataHora = new SimpleDateFormat("yyyy-MM-dd HH:mm").parse(dataHoraStr);
-            String nomeJogador = lines[2].split(": ")[1];
-            int pontuacao = extractScore(content);
-
-            // Imprimir informações
-            System.out.println("Nome: " + nomeJogador + ", Data e Hora: " + dataHora +
-                    ", Pontuação: " + pontuacao);
-
-        } catch (IOException | ParseException e) {
-            // e.printStackTrace();
-        }
+        // Se existe e é diretório, 'gameFiles' vai receber todos os ficheiros nesse diretório
+        if (fr.exists() && fr.isDirectory()) { gameFiles = fr.listFiles(); }
     }
 
     /**
      * Calcula a pontuação de um jogo, com base nas perguntas acertadas e erradas presentes no ficheiro
      */
-    public static int extractScore(String conteudo) {
-        int perguntasCertas = conteudo.split("Perguntas certas:")[1].split("\n")[1].split("\\?").length - 1;
-        int perguntasErradas = conteudo.split("Perguntas erradas:")[1].split("\n")[1].split("\\?").length - 1;
-        return perguntasCertas - perguntasErradas;
+    private int extractGameScore(File gameFile) {
+        gameScore = 0;
+        String[] splitted;
+
+        if (gameFile != null) { rightQuestions = files.openReadGame(gameFile); }
+        for (String right: rightQuestions) {
+            splitted = right.split(";");
+            switch (splitted[0]) {
+                case "Artes": p = new Artes(); break;
+                case "Ciências": p = new Ciencias(); break;
+                case "Futebol": p = new Futebol(); break;
+                case "Natação": p = new Natacao(); break;
+                case "Ski": p = new Ski(); break;
+                default: System.exit(0);
+            }
+            gameScore += p.getScore();
+            System.out.println(right);
+        }
+        return gameScore;
     }
 }

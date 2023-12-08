@@ -11,7 +11,7 @@ import javax.swing.*;
  * @version 1.1
  * @since 2023-11-17
  */
-public class Trivia {
+public class Trivia extends Ficheiros {
     /**
      * Main
      * @param args Unused
@@ -28,7 +28,6 @@ public class Trivia {
                 GUI gui = new GUI(allQuestions);
                 gui.setVisible(true);
             });
-
         } catch(Exception ex1){
             // ex1.printStackTrace();
         }

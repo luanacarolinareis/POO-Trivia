@@ -89,12 +89,6 @@ class GUI extends JFrame {
     protected JLabel showInfo;
 
     /**
-     * Cada pergunta tem uma pontuação base, definida no ficheiro de texto
-     * (para posterior majoração, conforme a área)
-     */
-    protected int baseScore;
-
-    /**
      * Contador
      */
     protected int count = 0;
@@ -117,12 +111,12 @@ class GUI extends JFrame {
     /**
      * Perguntas acertadas
      */
-    protected ArrayList<String> right = new ArrayList<>();
+    protected ArrayList<Pergunta> right = new ArrayList<>();
 
     /**
      * Perguntas erradas
      */
-    protected ArrayList<String> wrong = new ArrayList<>();
+    protected ArrayList<Pergunta> wrong = new ArrayList<>();
 
     /**
      * Ativação ou desativação dos botões de resposta
@@ -179,16 +173,14 @@ class GUI extends JFrame {
     /**
      * Cria um botão personalizado
      * @param answer Texto do botão
-     * @param listener Evento
+     * @param event Evento
      * @return Botão
      */
-    private JButton createStyledButton(String answer, int w, int h, ActionListener listener) {
+    private JButton createStyledButton(String answer, int w, int h, ActionListener event) {
         JButton button = new JButton(answer);
-        setButton(button, false);
         button.setPreferredSize(new Dimension(w, h));
-        button.addActionListener(e -> {
-            if (buttonsEnabled) { listener.actionPerformed(e); }
-        });
+        button.addActionListener(e -> { if (buttonsEnabled) { event.actionPerformed(e); } });
+        setButton(button, false);
         return button;
     }
 
@@ -206,6 +198,7 @@ class GUI extends JFrame {
         if (change) { button.setBackground(Color.decode("#cda142")); }
         button.setBorder(BorderFactory.createLineBorder(Color.decode("#cda142"), 2, true));
         button.setForeground(Color.WHITE);
+
     }
 
     /**
@@ -230,7 +223,6 @@ class GUI extends JFrame {
     private void defineInfo(int index) {
         this.area = chosenQuestions.get(index).getArea();      // Área
         this.phrase = chosenQuestions.get(index).getPhrase();  // Enunciado
-        this.baseScore = chosenQuestions.get(index).getPont(); // Pontuação base
 
         if (!this.area.equals("Natação") && !this.area.equals("Ski")) {
             this.buttonsNr = 5;
@@ -285,7 +277,8 @@ class GUI extends JFrame {
         gbc.insets = new Insets(0, 0, 0, 0); // Zera as margens para o botão
 
         // Botão de início de jogo
-        JButton startButton = createStyledButton("Iniciar", 150, 40, e -> startGame());
+        ActionListener startEvent = e -> startGame();
+        JButton startButton = createStyledButton("Iniciar", 150, 40, startEvent);
         welcomePanel.add(startButton, gbc);
     }
 
@@ -349,7 +342,8 @@ class GUI extends JFrame {
         // Adiciona o botão de confirmação
         gbc.insets = new Insets(-10, 0, 0, 0); // Novo espaçamento
         gbc.gridy = 2;
-        JButton okButton = createStyledButton("OK", 105, 20, e -> onOkButtonClicked(playerName.getText()));
+        ActionListener endEvent =  e -> onOkButtonClicked(playerName.getText());
+        JButton okButton = createStyledButton("OK", 105, 20, endEvent);
         finalPanel.add(okButton, gbc);
     }
 
@@ -370,6 +364,7 @@ class GUI extends JFrame {
 
         // Informações dos 3 melhores jogos (exemplo a ser alterado)
         Top top = new Top();
+        top.getTopScores();
 
         String[][] playerInfo = {{"Jogador 1", "100", "01/12/2023"},
                 {"Jogador 2", "90", "02/01/2023 11:00"},
@@ -405,13 +400,13 @@ class GUI extends JFrame {
         // Verificação de respostas
         ansUser = selectedAnswer.substring(0, 2);
         ansCorrect = chosenQuestions.get(temp).getAns();
-        String questionToAdd = chosenQuestions.get(temp).getPhrase();
+
         if (ansUser.equals(ansCorrect)) {
             showInfo.setText("Resposta correta!");
-            right.add(questionToAdd);
+            right.add(chosenQuestions.get(temp));
         } else {
             showInfo.setText("Resposta incorreta. A resposta correta era: " + ansCorrect);
-            wrong.add(questionToAdd);
+            wrong.add(chosenQuestions.get(temp));
         }
 
         // Próximo painel
@@ -438,7 +433,7 @@ class GUI extends JFrame {
                     timer.cancel(); // Cancela o temporizador após a execução
                 });
             }
-        }, 1000); // Aguarda 1 segundo antes de executar a tarefa
+        }, 500); // Aguarda 1 segundo antes de executar a tarefa
     }
 
     /**
@@ -468,7 +463,6 @@ class GUI extends JFrame {
         res.generateResultFile(dateTimeFormat, playerName, right, wrong);
 
         // Exibe o "TOP 3", após o botão "OK" ser clicado
-        System.out.println(baseScore);
         createTopPanel();
         cardPanel.add(topPanel, "TOP 3");
         cardLayout.show(cardPanel, "TOP 3");

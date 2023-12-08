@@ -18,12 +18,17 @@ class Artes extends Pergunta {
     protected String[] subAnswers = new String[3];
 
     /**
+     * Construtor default
+     */
+    Artes() {}
+
+    /**
      * Construtor
      * @param splitted Informação dividida
      */
     Artes(String[] splitted) {
         super(splitted);
-        System.arraycopy(splitted, 3, this.answers, 0, 5);
+        System.arraycopy(splitted, 2, this.answers, 0, 5);
     }
 
     /**
@@ -57,5 +62,5 @@ class Artes extends Pergunta {
      * Majoração da pontuação
      * @return Pontuação majorada em x10 pela área de "Artes"
      */
-    public int getPont() { return super.getPont() * 10;}
+    public int getScore() { return super.getScore() * 10;}
 }

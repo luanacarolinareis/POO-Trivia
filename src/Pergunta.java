@@ -15,12 +15,19 @@ class Pergunta {
     /**
      * Pontuação base
      */
-    protected int pont;
+    protected int score;
 
     /**
      * Resposta correta
      */
     protected String ans;
+
+    /**
+     * Construtor default
+     */
+    Pergunta() {
+        this.score = 5;
+    }
 
     /**
      * Construtor
@@ -29,7 +36,7 @@ class Pergunta {
     Pergunta(String[] splitted) {
         this.area = splitted[0];                         // Área
         this.phrase = splitted[1];                       // Enunciado
-        this.pont = Integer.parseInt(splitted[2]);       // Pontuação base
+        this.score = 5;                                  // Pontuação base
         this.ans = splitted[splitted.length - 1];        // Resposta correta
     }
 
@@ -79,5 +86,5 @@ class Pergunta {
      * Getter
      * @return Pontuação base
      */
-    public int getPont() { return pont; }
+    public int getScore() { return score; }
 }
