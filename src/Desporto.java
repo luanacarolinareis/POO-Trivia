@@ -19,5 +19,11 @@ class Desporto extends Pergunta {
      * Majoração da pontuação
      * @return Pontuação majorada em +3 pela área de "Desporto"
      */
-    public int getScore() { return super.getScore() + 3; }
+    private int increaseScore() { return super.getScore() + 3; }
+
+    /**
+     * Getter
+     * @return Pontuação majorada
+     */
+    public int getScore() { return increaseScore(); }
 }

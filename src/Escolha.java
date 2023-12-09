@@ -2,37 +2,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Seleção randomizada de 5 perguntas aleatórias, a cada novo jogo
+ */
 class Escolha {
-
-    /**
-     * Lista de índices não repetidos
-     */
-    protected static List<Integer> indexes;
-
-    /**
-     * Pergunta atual
-     */
-    protected String currentQuestion;
-
-    /**
-     * Informação splitada da pergunta
-     */
-    protected String[] splitted;
-
     /**
      * Perguntas selecionadas
      */
-    protected ArrayList<Pergunta> chosen = new ArrayList<>();
+    private final ArrayList<Pergunta> chosen = new ArrayList<>();
+
+    /**
+     * Construtor default
+     */
+    Escolha() {}
 
     /**
      * Gera índices aleatórios não repetidos
+     * @return Lista de índices
      */
-    protected static List<Integer> generateIndexes() {
+    private List<Integer> generateIndexes() {
         List<Integer> indexes = new ArrayList<>();
         Random random = new Random();
         while (indexes.size() < 5) {
-            int randIndex = random.nextInt(30);
-            if (!indexes.contains(randIndex)) { indexes.add(randIndex); }
+            int randIndex = random.nextInt(30);                         // Índices entre 0 e 29 (inclusivé)
+            if (!indexes.contains(randIndex)) { indexes.add(randIndex); }     // Se esse índice ainda não foi selecionado, adiciona-o
         }
         return indexes;
     }
@@ -42,11 +35,12 @@ class Escolha {
      * @param allQuestions Todas as perguntas
      * @return Perguntas escolhidas
      */
-    protected ArrayList<Pergunta> chooseQuestions(ArrayList<String> allQuestions) {
+    private ArrayList<Pergunta> defineQuestions(ArrayList<String> allQuestions) {
         // Escolha de 5 perguntas para a 'interface' gráfica
-        indexes = generateIndexes();
+        List<Integer> indexes = generateIndexes();
+        String currentQuestion;
+        String[] splitted;
         for (int i = 0; i < 5; i++) {
-
             currentQuestion = allQuestions.get(indexes.get(i));  // Escolhe uma pergunta aleatoriamente
             splitted = currentQuestion.split(";");        // Informação splitada da pergunta
             switch (splitted[0]) {
@@ -60,4 +54,11 @@ class Escolha {
         }
         return chosen;
     }
+
+    /**
+     * Getter
+     * @param allQuestions Todas as perguntas
+     * @return Perguntas escolhidas
+     */
+    public ArrayList<Pergunta> chooseQuestions(ArrayList<String> allQuestions) { return defineQuestions(allQuestions);}
 }

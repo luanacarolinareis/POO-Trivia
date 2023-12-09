@@ -5,29 +5,22 @@ class Pergunta {
     /**
      * Área da pergunta
      */
-    protected String area;
+    private String area;
 
     /**
      * Enunciado da pergunta
      */
-    protected String phrase;
-
-    /**
-     * Pontuação base
-     */
-    protected int score;
+    private String phrase;
 
     /**
      * Resposta correta
      */
-    protected String ans;
+    private String ans;
 
     /**
      * Construtor default
      */
-    Pergunta() {
-        this.score = 5;
-    }
+    Pergunta() {}
 
     /**
      * Construtor
@@ -36,7 +29,6 @@ class Pergunta {
     Pergunta(String[] splitted) {
         this.area = splitted[0];                         // Área
         this.phrase = splitted[1];                       // Enunciado
-        this.score = 5;                                  // Pontuação base
         this.ans = splitted[splitted.length - 1];        // Resposta correta
     }
 
@@ -86,5 +78,5 @@ class Pergunta {
      * Getter
      * @return Pontuação base
      */
-    public int getScore() { return score; }
+    public int getScore() { return 5; }
 }
