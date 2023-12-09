@@ -1,5 +1,7 @@
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * Ordena as pontuações de jogos
@@ -11,32 +13,70 @@ class Top extends Ficheiros {
     private ArrayList<String> rightQuestions;
 
     /**
+     * Nome do jogador
+     */
+    protected StringBuilder name = new StringBuilder();
+
+    /**
      * Pontuação total de um jogo
      */
     private int gameScore;
 
     /**
+     * Data e hora
+     */
+    protected StringBuilder dateTime = new StringBuilder();
+
+    /**
      * Utilizado para efeitos de leitura e escrita de ficheiros
      */
-    private final Ficheiros files = new Ficheiros();
+    protected Ficheiros files = new Ficheiros();
 
     /**
      * Array de ficheiros
      */
-    protected File[] gameFiles;
+    private File[] gameFiles;
 
-    protected Pergunta p;
+    /**
+     * Variável que representa uma pergunta
+     * @see Pergunta Pergunta instanciada conforme a área
+     */
+    private Pergunta p;
+
+    /**
+     * Informação final a enviar (TOP 3)
+     */
+    protected ArrayList<ArrayList<String>> topInfo = new ArrayList<>();
 
     /**
      * Vai devolver os três melhores jogos
      */
-    public void getTopScores() {
+    public ArrayList<ArrayList<String>> getTopScores() {
+        defineTopScores();
+        return topInfo;
+    }
+
+   private void defineTopScores() {
        saveAllToMemory();   // Primeiramente, guarda todos os jogos numa lista temporária
-       for (File fr: gameFiles) {                    // Para cada um desses ficheiros, vai processar a sua informação
-           gameScore = extractGameScore(fr);         // Processa o jogo atual
-           System.out.println(gameScore);
-           System.out.println("\nNew game...\n");
+       int actualScore = extractGameScore(gameFiles[gameFiles.length - 1]);   // Pontuação do jogo atual
+
+       // Ordenar os gameFiles com base nas pontuações
+       Arrays.sort(gameFiles, Comparator.comparingInt(this::extractGameScore).reversed());
+
+       // Exibir os três melhores jogos
+       int topGames = Math.min(3, gameFiles.length);
+       ArrayList<String> temp = new ArrayList<>();
+
+       for (int i = 0; i < topGames; i++) {
+           gameScore = extractGameScore(gameFiles[i]);
+           temp.add(String.valueOf(name));
+           temp.add(String.valueOf(gameScore));
+           temp.add(String.valueOf(dateTime));
+           topInfo.add(temp);
+           temp = new ArrayList<>();
        }
+       temp.add(String.valueOf(actualScore));
+       topInfo.add(temp);
    }
 
     /**
@@ -55,10 +95,12 @@ class Top extends Ficheiros {
      * Calcula a pontuação de um jogo, com base nas perguntas acertadas e erradas presentes no ficheiro
      */
     private int extractGameScore(File gameFile) {
+        name.setLength(0);
+        dateTime.setLength(0);
         gameScore = 0;
         String[] splitted;
 
-        if (gameFile != null) { rightQuestions = files.openReadGame(gameFile); }
+        if (gameFile != null) { rightQuestions = openReadGame(gameFile, name, dateTime); }
         for (String right: rightQuestions) {
             splitted = right.split(";");
             switch (splitted[0]) {
@@ -70,7 +112,6 @@ class Top extends Ficheiros {
                 default: System.exit(0);
             }
             gameScore += p.getScore();
-            System.out.println(right);
         }
         return gameScore;
     }

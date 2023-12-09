@@ -299,9 +299,10 @@ class GUI extends JFrame {
         JButton[] answerButtons = new JButton[buttonsNr];
 
         // Cria e adiciona os botões ao painel
+        String[] letters = {"a) ", "b) ", "c) ", "d) ", "e) "};
         for (int i = 0; i < buttonsNr; i++) {    // Cria 5 ou 2 botões
             int finalI = i;
-            answerButtons[i] = createStyledButton(answers[i], 150, 40, e -> handleAnswer(answers[finalI]));
+            answerButtons[i] = createStyledButton(letters[i] + answers[i].substring(3), 150, 40, e -> handleAnswer(answers[finalI]));
             answerButtons[i].addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseEntered(MouseEvent evt) { setButton(answerButtons[finalI], true); }
@@ -364,28 +365,28 @@ class GUI extends JFrame {
 
         // Informações dos 3 melhores jogos (exemplo a ser alterado)
         Top top = new Top();
-        top.getTopScores();
+        ArrayList<ArrayList<String>> playerInfo = top.getTopScores();
 
-        String[][] playerInfo = {{"Jogador 1", "100", "01/12/2023"},
-                {"Jogador 2", "90", "02/01/2023 11:00"},
-                {"Jogador 3", "80", "03/01/2023 12:00"}};
+        for (int i = 0; i < playerInfo.size(); i++) {
+            if (i < playerInfo.size() - 1) {
+                JLabel nameLabel = createStyledLabel(playerInfo.get(i).get(0), 14, Font.PLAIN, Color.WHITE);
+                JLabel scoreLabel = createStyledLabel("Pontuação: " + playerInfo.get(i).get(1), 14, Font.PLAIN, Color.WHITE);
+                JLabel dateLabel = createStyledLabel(playerInfo.get(i).get(2), 14, Font.PLAIN, Color.WHITE);
 
-        for (String[] player : playerInfo) {
-            JLabel nameLabel = createStyledLabel(player[0], 14, Font.PLAIN, Color.WHITE);
-            JLabel scoreLabel = createStyledLabel("Pontuação: " + player[1], 14, Font.PLAIN, Color.WHITE);
-            JLabel dateLabel = createStyledLabel("Data e hora: " + player[2], 14, Font.PLAIN, Color.WHITE);
-            topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
-            topPanel.add(nameLabel);
-            topPanel.add(Box.createRigidArea(new Dimension(0,5)));
-            topPanel.add(scoreLabel);
-            topPanel.add(Box.createRigidArea(new Dimension(0,5)));
-            topPanel.add(dateLabel);
-            topPanel.add(Box.createRigidArea(new Dimension(0,20)));
+                topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+                topPanel.add(nameLabel);
+                topPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+                topPanel.add(scoreLabel);
+                topPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+                topPanel.add(dateLabel);
+                topPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+            }
+            else {
+                topPanel.add(Box.createRigidArea(new Dimension(0,10)));
+                JLabel gameScore = createStyledLabel("Pontuação do jogo atual: " + playerInfo.get(i).get(0), 14, Font.BOLD, Color.WHITE);
+                topPanel.add(gameScore);
+            }
         }
-        topPanel.add(Box.createRigidArea(new Dimension(0,10)));
-        JLabel gameScore = createStyledLabel("Pontuação do jogo atual: " + 0, 14, Font.BOLD, Color.WHITE);
-        topPanel.add(gameScore);
-
         topPanel.add(Box.createRigidArea(new Dimension(0,50)));
         JButton newGameButton = createStyledButton("NOVO JOGO", 150, 40, e -> startGame());
         topPanel.add(newGameButton);
@@ -402,10 +403,10 @@ class GUI extends JFrame {
         ansCorrect = chosenQuestions.get(temp).getAns();
 
         if (ansUser.equals(ansCorrect)) {
-            showInfo.setText("Resposta correta!");
+            showInfo.setText("Resposta correta! [" + chosenQuestions.get(temp).getScore() + " pontos]");
             right.add(chosenQuestions.get(temp));
         } else {
-            showInfo.setText("Resposta incorreta. A resposta correta era: " + ansCorrect);
+            showInfo.setText("Resposta incorreta! [0 pontos]");
             wrong.add(chosenQuestions.get(temp));
         }
 

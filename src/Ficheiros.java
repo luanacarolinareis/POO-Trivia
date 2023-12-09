@@ -73,18 +73,17 @@ class Ficheiros {
     /**
      * Abrir o ficheiro para leitura de um jogo
      */
-    protected ArrayList<String> openReadGame(File file) {
+    protected ArrayList<String> openReadGame(File file, StringBuilder name, StringBuilder dateTime) {
         ArrayList<String> rightQuestions = new ArrayList<>();
-
         try {
             FileInputStream fiS = new FileInputStream(file);
             oiS = new ObjectInputStream(fiS);
 
             // Leitura dos objetos do arquivo
             while (!(line = oiS.readObject().toString()).equals("Perguntas erradas: ")) {
-                if (!(line.contains("Data") || line.contains("Nome") || line.contains("Perguntas"))) {
-                    rightQuestions.add(line);
-                }
+                if (line.contains("Nome")) name.append(line);
+                else if (line.contains("Data")) dateTime.append(line);
+                else if (!line.contains("Perguntas")) rightQuestions.add(line);
             }
             closeReadGame();
         } catch (Exception ex) {
