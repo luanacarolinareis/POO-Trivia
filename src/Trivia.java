@@ -32,8 +32,8 @@ public class Trivia {
                 gui.setVisible(true);
             });
         } catch(Exception ex1){
+            // System.out.println("Ficheiro não existe!");
             throw new RuntimeException(ex1);
         }
     }
 }
-

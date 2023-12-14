@@ -23,8 +23,9 @@ class Escolha {
     private List<Integer> generateIndexes() {
         List<Integer> indexes = new ArrayList<>();
         Random random = new Random();
+        int randIndex;
         while (indexes.size() < 5) {
-            int randIndex = random.nextInt(30);                         // Índices entre 0 e 29 (inclusivé)
+            randIndex = random.nextInt(30);                             // Índices entre 0 e 29 (inclusivé)
             if (!indexes.contains(randIndex)) { indexes.add(randIndex); }     // Se esse índice ainda não foi selecionado, adiciona-o
         }
         return indexes;

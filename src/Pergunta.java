@@ -36,25 +36,25 @@ class Pergunta {
      * Getter
      * @return Área da pergunta
      */
-    public String getArea() { return area; }
+    protected String getArea() { return area; }
 
     /**
      * Getter
      * @return Enunciado da pergunta
      */
-    public String getPhrase() { return phrase; }
+    protected String getPhrase() { return phrase; }
 
     /**
      * Getter
      * @return Resposta correta
      */
-    public String getAns() { return ans; }
+    protected String getAns() { return ans; }
 
     /**
      * Getter
      * @return null
      */
-    public String[] getEasyAnswers() {
+    protected String[] getEasyAnswers() {
         return null;
     }
 
@@ -62,7 +62,7 @@ class Pergunta {
      * Getter
      * @return null
      */
-    public String[] getHardAnswers() {
+    protected String[] getHardAnswers() {
         return null;
     }
 
@@ -70,7 +70,7 @@ class Pergunta {
      * Getter
      * @return null
      */
-    public String[] getAnswers() {
+    protected String[] getAnswers() {
         return null;
     }
 
@@ -78,5 +78,5 @@ class Pergunta {
      * Getter
      * @return Pontuação base
      */
-    public int getScore() { return 5; }
+    protected int getScore() { return 5; }
 }

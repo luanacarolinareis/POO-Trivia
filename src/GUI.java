@@ -50,87 +50,57 @@ class GUI extends JFrame {
     /**
      * Número de botões necessários
      */
-    protected int buttonsNr;
+    private int buttonsNr;
 
     /**
      * Todas as perguntas
      */
-    protected ArrayList<String> allQuestions;
+    private final ArrayList<String> allQuestions;
 
     /**
      * Perguntas escolhidas
      */
-    protected ArrayList<Pergunta> chosenQuestions = new ArrayList<>();
-
-    /**
-     * Área da pergunta
-     */
-    protected String area;
+    private ArrayList<Pergunta> chosenQuestions = new ArrayList<>();
 
     /**
      * Enunciado da pergunta
      */
-    protected String phrase;
+    private String phrase;
 
     /**
      * Lista de respostas
      */
-    protected String[] answers;
-
-    /**
-     * Resposta correta
-     */
-    protected String ansCorrect;
-
-    /**
-     * Resposta do utilizador
-     */
-    protected String ansUser;
+    private String[] answers;
 
     /**
      * Label que irá apresentar o resultado de jogo
      */
-    protected JLabel showInfo;
-
-    /**
-     * Contador
-     */
-    protected int count = 0;
+    private final JLabel showInfo;
 
     /**
      * Número de pergunta
      */
-    protected int questionNr = 2;
+    private int questionNr = 2;
 
     /**
      * Contador auxiliar
      */
-    protected int temp = 0;
-
-    /**
-     * Escolha de novas perguntas
-     */
-    protected Escolha choice;
+    private int count = 0;
 
     /**
      * Perguntas certas
      */
-    protected ArrayList<Pergunta> right = new ArrayList<>();
+    private final ArrayList<Pergunta> right = new ArrayList<>();
 
     /**
      * Perguntas erradas
      */
-    protected ArrayList<Pergunta> wrong = new ArrayList<>();
+    private final ArrayList<Pergunta> wrong = new ArrayList<>();
 
     /**
      * Ativação ou desativação dos botões de resposta
      */
-    protected boolean buttonsEnabled = true;
-
-    /**
-     * Classe gestora de resultados, para armazenar e ler jogos
-     */
-    protected Resultados res;
+    private boolean buttonsEnabled = true;
 
     /**
      * Construtor
@@ -156,7 +126,7 @@ class GUI extends JFrame {
         setLocationRelativeTo(null);                     // Centraliza a janela
 
         add(cardPanel);                                 // Adiciona o painel de cartões ao JFrame
-        this.showInfo = createStyledLabel("", 14, Font.PLAIN, Color.decode("#cda142"));
+        showInfo = createStyledLabel("", 14, Font.PLAIN, Color.decode("#cda142"));
     }
 
     /**
@@ -229,8 +199,8 @@ class GUI extends JFrame {
      * @param index Índice da pergunta
      */
     private void defineInfo(int index) {
-        area = chosenQuestions.get(index).getArea();      // Área
-        phrase = chosenQuestions.get(index).getPhrase();  // Enunciado
+        String area = chosenQuestions.get(index).getArea();      // Área
+        phrase = chosenQuestions.get(index).getPhrase();        // Enunciado
 
         if (!area.equals("Natação") && !area.equals("Ski")) {
             buttonsNr = 5;
@@ -251,14 +221,13 @@ class GUI extends JFrame {
      * Inicializa o jogo e limpa variáveis e listas de controlo
      */
     private void startGame() {
-        count = 0;
         questionNr = 2;
-        temp = 0;
+        count = 0;
         right.clear();
         wrong.clear();
 
         // São randomizadas 5 novas perguntas
-        choice = new Escolha();
+        Escolha choice = new Escolha();
         chosenQuestions = choice.chooseQuestions(allQuestions);
 
         // É definida a nova informação, para a 1.ª pergunta
@@ -306,7 +275,7 @@ class GUI extends JFrame {
         JButton[] answerButtons = new JButton[buttonsNr];
 
         // Cria e adiciona os botões ao painel
-        for (int i = 0; i < buttonsNr; i++) {       // Cria 5 ou 2 botões
+        for (int i = 0; i < buttonsNr; i++) {       // Cria 5, 3 ou 2 botões
             int finalI = i;
             answerButtons[i] = createStyledButton(letters[i] + answers[i].substring(3), 150, 40, e -> handleAnswer(answers[finalI]));
             handleMouseHover(answerButtons[i]);     // Adiciona eventos para quando o rato passa sobre os botões
@@ -411,20 +380,20 @@ class GUI extends JFrame {
         buttonsEnabled = false;     // Por segurança, desativa os botões enquanto mostra o resultado
 
         // Verificação de respostas
-        ansUser = selectedAnswer.substring(0, 2);
-        ansCorrect = chosenQuestions.get(temp).getAns();
+        String ansUser = selectedAnswer.substring(0, 2);
+        String ansCorrect = chosenQuestions.get(count).getAns();
 
         if (ansUser.equals(ansCorrect)) {
-            showInfo.setText("Resposta correta! [" + chosenQuestions.get(temp).getScore() + " pontos]");
-            right.add(chosenQuestions.get(temp));   // Adiciona à lista de perguntas certas
+            showInfo.setText("Resposta correta! [" + chosenQuestions.get(count).getScore() + " pontos]");
+            right.add(chosenQuestions.get(count));   // Adiciona à lista de perguntas certas
         } else {
             showInfo.setText("Resposta incorreta! [0 pontos]");
-            wrong.add(chosenQuestions.get(temp));   // Adiciona à lista de perguntas erradas
+            wrong.add(chosenQuestions.get(count));   // Adiciona à lista de perguntas erradas
         }
 
-        temp++;     // Próximo painel
+        count++;     // Próximo painel
 
-        // Exibe a mensagem por um segundo, antes de passar para a próxima pergunta
+        // Exibe a mensagem por 500 milissegundos, antes de passar para a próxima pergunta
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
@@ -432,10 +401,10 @@ class GUI extends JFrame {
                 SwingUtilities.invokeLater(() -> {
                     showInfo.setText("");       // Reseta o texto da label
                     if (questionNr <= 5) {
-                        defineInfo(temp);       // Define a informação da próxima pergunta
-                        createMainPanel(temp + 1);
-                        cardPanel.add(mainPanel, "Main" + (temp + 1));
-                        cardLayout.show(cardPanel, "Main" + (temp + 1));
+                        defineInfo(count);       // Define a informação da próxima pergunta
+                        createMainPanel(count + 1);
+                        cardPanel.add(mainPanel, "Main" + (count + 1));
+                        cardLayout.show(cardPanel, "Main" + (count + 1));
                         questionNr++;
                     } else {
                         // Se todas as perguntas foram respondidas, exibe o ecrã de fim de jogo
@@ -454,7 +423,7 @@ class GUI extends JFrame {
      */
     private void onOkButtonClicked(String playerName) {
         // O nome só deve contar letras e espaços
-        String regex = "^[a-zA-Z\\s]*$";
+        String regex = "^[a-zA-Z\\sÀ-ÿ]*$";
 
         // Remoção de espaços desnecessários
         if(playerName.trim().isEmpty() || !playerName.matches(regex)) {
@@ -471,7 +440,7 @@ class GUI extends JFrame {
         String dateTimeFormat = dateTimeNow.format(format);
 
         // Escrita do ficheiro com os resultados de cada jogo, com nome, data e hora
-        res = new  Resultados(dateTimeFormat, playerName);
+        Resultados res = new Resultados(dateTimeFormat, playerName);
         res.generateResultFile(dateTimeFormat, playerName, right, wrong);
 
         // Exibe o "TOP 3", após o botão "OK" ser clicado

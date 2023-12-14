@@ -25,7 +25,7 @@ class Natacao extends Desporto {
      * Majoração da pontuação
      * @return Pontuação majorada em +3 pela área de "Desporto" e majorada em +10 pela subárea de "Natação"
      */
-    public int increaseScore() { return super.getScore() + 10; }
+    private int increaseScore() { return super.getScore() + 10; }
 
     /**
      * Getter
