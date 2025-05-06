@@ -98,7 +98,7 @@ No final, é apresentado o TOP 3 das melhores pontuações e a pontuação atual
 
 ## 📄 Documentação
 
-- [Relatório do Projeto (PDF)](Relatorio.pdf)
+- [Relatório do Projeto (PDF)](Relatório.pdf)
 - [Diagrama UML (PDF)](uml-final.pdf)
 
 ## 📸 Capturas de Ecrã
